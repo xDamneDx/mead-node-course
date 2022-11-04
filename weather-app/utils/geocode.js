@@ -6,18 +6,21 @@ const geocode = (address, callback) => {
     address
   )}.json?access_token=${geocodingApiKey}&limit=1`;
 
-  request({ url, json: true }, (error, res) => {
-    if (error) {
+  request({ url, json: true }, (err, { body }) => {
+    if (err) {
       callback("Unable to connect to location services.", undefined);
-    } else if (res.body.features.length === 0) {
+    } else if (body.features.length === 0) {
       callback("Unable to find location. Try another search.", undefined);
     } else {
-      const [longitude, latitude] = res.body.features[0].center;
+      const {
+        center: [longitude, latitude],
+        place_name: location,
+      } = body.features[0];
 
       callback(undefined, {
         longitude,
         latitude,
-        location: res.body.features[0].place_name,
+        location,
       });
     }
   });
